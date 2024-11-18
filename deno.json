@@ -1,4 +1,6 @@
 {
+  "name": "ketchup-db",
+  "version": "1.0.0",
   "tasks": {
     "start": "deno run --allow-read --allow-write src/examples/example.ts",
     "dev": "deno run --watch --allow-read --allow-write src/examples/example.ts",
@@ -24,14 +26,7 @@
   "imports": {
     "std/": "https://deno.land/std@0.206.0/"
   },
-  "compilerOptions": {
-    "strict": true,
-    "lib": ["deno.window"],
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noFallthroughCasesInSwitch": true
+  "publish": {
+    "exclude": ["**/*_test.ts", "**/test_data/", "examples/"]
   }
 }
