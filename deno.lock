@@ -1,0 +1,6 @@
+{
+  "version": "4",
+  "remote": {
+    "https://deno.land/std@0.206.0/fs/exists.ts": "cb59a853d84871d87acab0e7936a4dac11282957f8e195102c5a7acb42546bb8"
+  }
+}
