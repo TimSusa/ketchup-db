@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "name": "Alice",
+    "email": "alice@example.com",
+    "tel": "+1-555-123-4567",
+    "address": "123 Oak St, Springfield",
+    "events": [
+      {
+        "id": 1,
+        "title": "Project Review",
+        "date": "2024-03-20",
+        "type": "meeting"
+      },
+      {
+        "id": 2,
+        "title": "Client Call",
+        "date": "2024-03-22",
+        "type": "call"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Bob",
+    "email": "bob@example.com",
+    "tel": "+1-555-234-5678",
+    "address": "456 Maple Ave, Springfield",
+    "events": [
+      {
+        "id": 3,
+        "title": "Dental Check",
+        "date": "2024-03-21",
+        "type": "appointment"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Charlie",
+    "email": "charlie@example.com",
+    "tel": "+1-555-345-6789",
+    "address": "789 Pine Rd, Springfield",
+    "events": []
+  }
+]

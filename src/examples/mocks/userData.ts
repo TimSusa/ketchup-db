@@ -1,4 +1,4 @@
-import type { User } from "../types/user.ts";
+import type { User } from "../user.ts";
 
 export const userData: User[] = [
   {

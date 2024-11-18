@@ -30,10 +30,10 @@ function findInObject(
   obj: unknown,
   search: SearchTerm,
   findBy: "key" | "value",
-  stopOnFirstMatch: boolean,
-  matchPartial: boolean,
+  results: SearchResult[] = [],
   path: string[] = [],
-  results: SearchResult[] = []
+  stopOnFirstMatch: boolean,
+  matchPartial: boolean
 ): SearchResult[] {
   if (!obj || typeof obj !== "object") {
     return results;
