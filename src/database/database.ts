@@ -2,12 +2,20 @@ import type { DbOptions } from "../types/database.ts";
 import { OperationQueue } from "./queue.ts";
 import { v4 as uuid } from "npm:uuid";
 
+type SearchOptions = {
+  matchPartial?: boolean;
+  findBy?: "key" | "value";
+  stopOnFirstMatch?: boolean;
+};
+
 export type Db<T> = {
   loadBatch: () => Promise<void>;
   saveBatch: () => Promise<void>;
   addItem: (item: T) => Promise<void>;
   addItems: (items: T[]) => Promise<void>;
   getAllItems: () => ReadonlyArray<T>;
+  deepSearch: (predicate: (item: T) => boolean) => Set<T>;
+  searchByPath: (searchTerm: string, options?: SearchOptions) => T[];
 };
 
 export function createDb<T extends { id?: string | number }>({
@@ -75,11 +83,62 @@ export function createDb<T extends { id?: string | number }>({
     return Array.from(dataSet);
   }
 
+  function deepSearch(predicate: (item: T) => boolean): Set<T> {
+    const results = new Set<T>();
+    for (const item of dataSet) {
+      if (predicate(item)) {
+        results.add(item);
+      }
+    }
+    return results;
+  }
+
+  function searchByPath(searchTerm: string, options?: SearchOptions): T[] {
+    const matches: T[] = [];
+    const items = getAllItems();
+
+    for (const item of items) {
+      if (deepSearchObject(item, searchTerm, options)) {
+        matches.push(item);
+        if (options?.stopOnFirstMatch) break;
+      }
+    }
+
+    return matches;
+  }
+
   return {
     loadBatch,
     saveBatch,
     addItem,
     addItems,
     getAllItems,
+    deepSearch,
+    searchByPath,
   };
+}
+
+function deepSearchObject(
+  obj: unknown,
+  searchTerm: string,
+  options?: SearchOptions
+): boolean {
+  if (!obj || typeof obj !== "object") return false;
+
+  for (const [key, value] of Object.entries(obj)) {
+    if (options?.findBy === "key" && key.includes(searchTerm)) return true;
+    if (
+      options?.findBy === "value" &&
+      typeof value === "string" &&
+      (options.matchPartial ? value.includes(searchTerm) : value === searchTerm)
+    )
+      return true;
+    if (
+      typeof value === "object" &&
+      deepSearchObject(value, searchTerm, options)
+    )
+      return true;
+  }
+
+  return false;
 }

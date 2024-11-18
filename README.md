@@ -1,18 +1,6 @@
 # Ketchup-DB
 Super simple JSON database for Deno in TypeScript, which uses a `Set` to store the items.
 
-### Auto-Generated IDs
-Items automatically receive a UUID if no ID is provided. You can focus on your data without worrying about ID management.
-
-```typescript
-// Create items without IDs - they'll be auto-generated
-await db.addItems([
-  { name: "Alice", email: "alice@example.com" },     // ID will be auto-generated
-  { name: "Bob", email: "bob@example.com" },         // ID will be auto-generated
-  { id: 3, name: "Charlie", email: "charlie@example.com" }  // Uses provided ID
-]);
-```
-
 ### Loading Multiple Items
 Reads multiple items from a JSON file at once and adds them to the `Set`. All items are validated before being added in a single operation.
 
@@ -53,12 +41,27 @@ async function main() {
   ]);
 
   console.log("After Adding Users:", db.getAllItems());
-  // Output will show auto-generated UUIDs for Alice and Bob
 
   await db.saveBatch();
 }
 
 await main();
+```
+
+### Example Output
+```typescript
+{
+  {
+    id: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    name: "Alice",
+    email: "alice@example.com"
+  },
+  {
+    id: "1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed",
+    name: "Bob",
+    email: "bob@example.com"
+  }
+}
 ```
 
 ### Key Features
@@ -152,3 +155,83 @@ const complexSearch = db.deepSearch(user =>
 - **Arrays**: Traverses through array elements
 - **Type Safe**: Full TypeScript support with type inference
 - **Flexible Matching**: Supports custom predicates for complex search conditions
+
+### Complete Example with Results
+
+```typescript
+// Initial setup
+const db = createDb<User>({
+  _filePath: "users.json",
+  validateItem: validateUser
+});
+
+// Add sample users with events
+await db.addItems([
+  {
+    name: "Alice Smith",
+    email: "alice@example.com",
+    tel: "+1-555-123-4567",
+    address: "123 Main St",
+    events: [
+      {
+        id: 101,
+        title: "Team Meetup",
+        date: "2024-03-20",
+        type: "work"
+      },
+      {
+        id: 102,
+        title: "Birthday Party",
+        date: "2024-04-15",
+        type: "personal"
+      }
+    ]
+  }
+]);
+
+// Search examples with results
+const workEvents = db.deepSearch(user => 
+  user.events.some(event => event.type === "work")
+);
+console.log("Users with work events:", workEvents);
+// Output: Set(1) { 
+//   { 
+//     name: "Alice Smith",
+//     events: [{ title: "Team Meetup", type: "work", ... }],
+//     ...
+//   } 
+// }
+
+const birthdayEvents = db.deepSearch(user =>
+  user.events.some(event => 
+    event.title.toLowerCase().includes("birthday")
+  )
+);
+console.log("Users with birthday events:", birthdayEvents);
+// Output: Set(1) { 
+//   { 
+//     name: "Alice Smith",
+//     events: [{ title: "Birthday Party", type: "personal", ... }],
+//     ...
+//   } 
+// }
+
+const futureEvents = db.deepSearch(user => 
+  user.address.includes("Main St") &&
+  user.events.some(event => 
+    new Date(event.date) > new Date("2024-03-01")
+  )
+);
+console.log("Users with future events on Main St:", futureEvents);
+// Output: Set(1) { 
+//   { 
+//     name: "Alice Smith",
+//     address: "123 Main St",
+//     events: [
+//       { date: "2024-03-20", ... },
+//       { date: "2024-04-15", ... }
+//     ],
+//     ...
+//   } 
+// }
+```
