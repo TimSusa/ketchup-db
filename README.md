@@ -147,20 +147,63 @@ These optimizations make your `SetDatabase` class efficient for handling large d
 
 The database includes powerful deep search capabilities that can traverse through nested objects, arrays, and recursive structures.
 
+### Example User Data Structure
+```typescript
+// Example data from users.json
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Alice Smith",
+      "email": "alice@example.com",
+      "tel": "+1-555-123-4567",
+      "address": "123 Main St",
+      "events": [
+        {
+          "id": 101,
+          "title": "Team Meetup",
+          "date": "2024-03-20",
+          "type": "work"
+        },
+        {
+          "id": 102,
+          "title": "Birthday Party",
+          "date": "2024-04-15",
+          "type": "personal"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Deep Search Examples
+
+```typescript
+// Find users with work events
+const workEvents = db.deepSearch(user => 
+  user.events.some(event => event.type === "work")
+);
+
+// Search through nested event titles
+const birthdayEvents = db.deepSearch(user =>
+  user.events.some(event => 
+    event.title.toLowerCase().includes("birthday")
+  )
+);
+
+// Complex search combining multiple criteria
+const complexSearch = db.deepSearch(user => 
+  user.address.includes("Main St") &&
+  user.events.some(event => 
+    new Date(event.date) > new Date("2024-03-01")
+  )
+);
+```
+
 ### Search Capabilities
 
 - **Nested Objects**: Searches through all object properties at any depth
 - **Arrays**: Traverses through array elements
-- **Recursive Structures**: Handles circular references (like nested user relationships)
-- **Partial Matching**: Optional partial string matching
-- **Type Safe**: Full TypeScript support
-
-### Example
-
-```typescript
-import type { User } from "@ketchup-db/types/user.ts";
-import { findInData } from "@ketchup-db/utils/find.ts";
-
-const userData: User = {
-  // ... rest of the example remains unchanged ...
-}
+- **Type Safe**: Full TypeScript support with type inference
+- **Flexible Matching**: Supports custom predicates for complex search conditions

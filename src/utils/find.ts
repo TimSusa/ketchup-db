@@ -15,32 +15,34 @@ export function findInData(
     matchPartial = false,
   } = options;
 
-  return findInObject(
-    data,
-    search,
-    findBy,
-    [],
-    [],
-    stopOnFirstMatch,
-    matchPartial
-  );
-}
+  return findInObject(data, search, findBy, stopOnFirstMatch, matchPartial);
 
-function findInObject(
-  obj: unknown,
-  search: SearchTerm,
-  findBy: "key" | "value",
-  stopOnFirstMatch: boolean,
-  matchPartial: boolean,
-  path: string[] = [],
-  results: SearchResult[] = []
-): SearchResult[] {
-  if (!obj || typeof obj !== "object") {
-    return results;
-  }
+  function findInObject(
+    obj: unknown,
+    search: SearchTerm,
+    findBy: "key" | "value",
+    stopOnFirstMatch: boolean,
+    matchPartial: boolean,
+    path: string[] = [],
+    results: SearchResult[] = []
+  ): SearchResult[] {
+    if (!obj || typeof obj !== "object") {
+      return results;
+    }
 
-  if (Array.isArray(obj)) {
-    return handleArray(
+    if (Array.isArray(obj)) {
+      return handleArray(
+        obj,
+        search,
+        findBy,
+        results,
+        path,
+        stopOnFirstMatch,
+        matchPartial
+      );
+    }
+
+    return handleObject(
       obj,
       search,
       findBy,
@@ -51,98 +53,88 @@ function findInObject(
     );
   }
 
-  return handleObject(
-    obj,
-    search,
-    findBy,
-    results,
-    path,
-    stopOnFirstMatch,
-    matchPartial
-  );
-}
-
-function handleArray(
-  arr: unknown[],
-  search: SearchTerm,
-  findBy: "key" | "value",
-  results: SearchResult[],
-  path: string[],
-  stopOnFirstMatch: boolean,
-  matchPartial: boolean
-): SearchResult[] {
-  for (let i = 0; i < arr.length; i++) {
-    findInObject(
-      arr[i],
-      search,
-      findBy,
-      results,
-      [...path, `${i}`],
-      stopOnFirstMatch,
-      matchPartial
-    );
-    if (stopOnFirstMatch && results.length > 0) {
-      return results;
-    }
-  }
-  return results;
-}
-
-function handleObject(
-  obj: object,
-  search: SearchTerm,
-  findBy: "key" | "value",
-  results: SearchResult[],
-  path: string[],
-  stopOnFirstMatch: boolean,
-  matchPartial: boolean
-): SearchResult[] {
-  for (const key in obj) {
-    const currentPath = [...path, key];
-    const currentValue = obj[key as keyof typeof obj];
-
-    if (isMatch(key, currentValue, search, findBy, matchPartial)) {
-      results.push({ path: currentPath, value: currentValue });
-      if (stopOnFirstMatch) {
+  function handleArray(
+    arr: unknown[],
+    search: SearchTerm,
+    findBy: "key" | "value",
+    results: SearchResult[],
+    path: string[],
+    stopOnFirstMatch: boolean,
+    matchPartial: boolean
+  ): SearchResult[] {
+    for (let i = 0; i < arr.length; i++) {
+      findInObject(
+        arr[i],
+        search,
+        findBy,
+        stopOnFirstMatch,
+        matchPartial,
+        [...path, `${i}`],
+        results
+      );
+      if (stopOnFirstMatch && results.length > 0) {
         return results;
       }
     }
+    return results;
+  }
 
-    findInObject(
-      currentValue,
-      search,
-      findBy,
-      results,
-      currentPath,
-      stopOnFirstMatch,
-      matchPartial
-    );
+  function handleObject(
+    obj: object,
+    search: SearchTerm,
+    findBy: "key" | "value",
+    results: SearchResult[],
+    path: string[],
+    stopOnFirstMatch: boolean,
+    matchPartial: boolean
+  ): SearchResult[] {
+    for (const key in obj) {
+      const currentPath = [...path, key];
+      const currentValue = obj[key as keyof typeof obj];
 
-    if (stopOnFirstMatch && results.length > 0) {
-      return results;
+      if (isMatch(key, currentValue, search, findBy, matchPartial)) {
+        results.push({ path: currentPath, value: currentValue });
+        if (stopOnFirstMatch) {
+          return results;
+        }
+      }
+
+      findInObject(
+        currentValue,
+        search,
+        findBy,
+        stopOnFirstMatch,
+        matchPartial,
+        currentPath,
+        results
+      );
+
+      if (stopOnFirstMatch && results.length > 0) {
+        return results;
+      }
     }
-  }
-  return results;
-}
-
-function isMatch(
-  key: string,
-  value: unknown,
-  search: SearchTerm,
-  findBy: "key" | "value",
-  matchPartial: boolean
-): boolean {
-  if (findBy === "key") {
-    return matchPartial ? isPartialMatch(key, search) : key === search;
+    return results;
   }
 
-  if (typeof value === "string" || typeof value === "number") {
-    return matchPartial
-      ? isPartialMatch(String(value), search)
-      : value === search;
-  }
+  function isMatch(
+    key: string,
+    value: unknown,
+    search: SearchTerm,
+    findBy: "key" | "value",
+    matchPartial: boolean
+  ): boolean {
+    if (findBy === "key") {
+      return matchPartial ? isPartialMatch(key, search) : key === search;
+    }
 
-  return false;
+    if (typeof value === "string" || typeof value === "number") {
+      return matchPartial
+        ? isPartialMatch(String(value), search)
+        : value === search;
+    }
+
+    return false;
+  }
 }
 
 function isPartialMatch(target: string, search: SearchTerm): boolean {
@@ -151,16 +143,4 @@ function isPartialMatch(target: string, search: SearchTerm): boolean {
   }
 
   return false;
-}
-
-export async function readItemsFromFile<T>(filePath: string): Promise<T[]> {
-  try {
-    const fileContent = await Deno.readTextFile(filePath);
-    return JSON.parse(fileContent) as T[];
-  } catch (error) {
-    if (error instanceof Deno.errors.NotFound) {
-      return [];
-    }
-    throw error;
-  }
 }
