@@ -63,7 +63,7 @@ export function findInData(
     matchPartial: boolean
   ): SearchResult[] {
     for (let i = 0; i < arr.length; i++) {
-      findInObject(
+      const nestedResults = findInObject(
         arr[i],
         search,
         findBy,
@@ -72,9 +72,10 @@ export function findInData(
         [...path, `${i}`],
         results
       );
-      if (stopOnFirstMatch && results.length > 0) {
-        return results;
+      if (stopOnFirstMatch && nestedResults.length > results.length) {
+        return nestedResults;
       }
+      results = nestedResults;
     }
     return results;
   }
@@ -88,32 +89,34 @@ export function findInData(
     stopOnFirstMatch: boolean,
     matchPartial: boolean
   ): SearchResult[] {
+    const newResults = [...results];
+
     for (const key in obj) {
       const currentPath = [...path, key];
       const currentValue = obj[key as keyof typeof obj];
 
       if (isMatch(key, currentValue, search, findBy, matchPartial)) {
-        results.push({ path: currentPath, value: currentValue });
+        newResults.push({ path: currentPath, value: currentValue });
         if (stopOnFirstMatch) {
-          return results;
+          return newResults;
         }
       }
 
-      findInObject(
+      const nestedResults = findInObject(
         currentValue,
         search,
         findBy,
         stopOnFirstMatch,
         matchPartial,
         currentPath,
-        results
+        newResults
       );
-
-      if (stopOnFirstMatch && results.length > 0) {
-        return results;
+      if (stopOnFirstMatch && nestedResults.length > results.length) {
+        return nestedResults;
       }
+      return nestedResults;
     }
-    return results;
+    return newResults;
   }
 
   function isMatch(

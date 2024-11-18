@@ -24,9 +24,23 @@
     }
   },
   "imports": {
-    "std/": "https://deno.land/std@0.206.0/"
+    "@/": "./src/"
   },
   "publish": {
     "exclude": ["**/*_test.ts", "**/test_data/", "examples/"]
+  },
+  "compilerOptions": {
+    "strict": true,
+    "lib": [
+      "DOM",
+      "ESNext",
+      "DOM.Iterable"
+    ],
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true
   }
 }
