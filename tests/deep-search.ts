@@ -1,6 +1,6 @@
-import type { User } from "./user.ts";
-import { findInData } from "../utils/find.ts";
-import { userData } from "./mocks/userData.ts";
+import type { User } from "../src/types/database.ts";
+import { findInData } from "../src/utils/find.ts";
+import { userData } from "./examples/mocks/userData.ts";
 
 const data: User[] = userData;
 

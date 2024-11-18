@@ -1,10 +1,13 @@
 {
   "name": "ketchup-db",
+  "exports": {
+    ".": "./mod.ts"
+  },
   "version": "1.0.0",
   "tasks": {
-    "start": "deno run --allow-read --allow-write src/examples/example.ts",
-    "dev": "deno run --watch --allow-read --allow-write src/examples/example.ts",
-    "test": "deno test --allow-read --allow-write",
+    "start": "deno run --allow-read --allow-write tests/examples/example.ts",
+    "dev": "deno run --watch --allow-read --allow-write tests/examples/example.ts",
+    "test": "deno test --reload --allow-read --allow-write --allow-run --allow-net --allow-env",
     "check": "deno check **/*.ts",
     "lint": "deno lint",
     "fmt": "deno fmt"
@@ -31,11 +34,7 @@
   },
   "compilerOptions": {
     "strict": true,
-    "lib": [
-      "DOM",
-      "ESNext",
-      "DOM.Iterable"
-    ],
+    "lib": ["DOM", "ESNext", "DOM.Iterable"],
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,

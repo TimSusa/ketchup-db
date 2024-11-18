@@ -72,7 +72,7 @@ function handleArray(
   matchPartial: boolean
 ): SearchResult[] {
   for (let i = 0; i < arr.length; i++) {
-    findInObject(
+    const nestedResults = findInObject(
       arr[i],
       search,
       findBy,
@@ -81,8 +81,8 @@ function handleArray(
       stopOnFirstMatch,
       matchPartial
     );
-    if (stopOnFirstMatch && results.length > 0) {
-      return results;
+    if (stopOnFirstMatch && nestedResults.length > 0) {
+      return nestedResults;
     }
   }
   return results;
@@ -108,7 +108,7 @@ function handleObject(
       }
     }
 
-    findInObject(
+    const nestedResults = findInObject(
       currentValue,
       search,
       findBy,
@@ -117,9 +117,8 @@ function handleObject(
       stopOnFirstMatch,
       matchPartial
     );
-
-    if (stopOnFirstMatch && results.length > 0) {
-      return results;
+    if (stopOnFirstMatch && nestedResults.length > 0) {
+      return nestedResults;
     }
   }
   return results;
@@ -150,7 +149,8 @@ function isPartialMatch(target: string, search: SearchTerm): boolean {
     return search.test(target);
   }
 
-  return false;
+  const searchStr = String(search);
+  return target.toLowerCase().includes(searchStr.toLowerCase());
 }
 
 export async function readItemsFromFile<T>(filePath: string): Promise<T[]> {

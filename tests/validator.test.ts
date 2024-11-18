@@ -1,7 +1,7 @@
 /// <reference lib="deno.ns" />
 
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
-import { createValidator } from "../../src/types/validator.ts";
+import { createValidator } from "../src/types/validator.ts";
+import { assertEquals } from "https://deno.land/std@0.224.0/testing/asserts.ts";
 
 Deno.test("createValidator", async (t) => {
   await t.step("should validate correct object structure", async () => {

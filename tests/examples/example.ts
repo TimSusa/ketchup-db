@@ -1,4 +1,4 @@
-import { findInData } from "../database/utils/find.ts";
+import { findInData } from "../../src/database/utils/find.ts";
 import { userData } from "./mocks/userData.ts";
 
 // Examples
