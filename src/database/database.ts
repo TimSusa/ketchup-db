@@ -1,12 +1,8 @@
-import type { Validator } from "../types/validator.ts";
+import type { DbOptions } from "../types/database.ts";
 import { OperationQueue } from "./queue.ts";
+import { v4 as uuid } from "npm:uuid";
 
-export type SetDatabaseOptions<T> = {
-  _filePath: string;
-  validateItem: Validator<T>;
-};
-
-export type SetDatabase<T> = {
+export type Db<T> = {
   loadBatch: () => Promise<void>;
   saveBatch: () => Promise<void>;
   addItem: (item: T) => Promise<void>;
@@ -14,10 +10,10 @@ export type SetDatabase<T> = {
   getAllItems: () => ReadonlyArray<T>;
 };
 
-export function createSetDatabase<T>({
+export function createDb<T extends { id?: string | number }>({
   _filePath,
   validateItem,
-}: SetDatabaseOptions<T>): SetDatabase<T> {
+}: DbOptions<T>): Db<T> {
   const dataSet = new Set<T>();
   const operationQueue = new OperationQueue();
 
@@ -49,18 +45,23 @@ export function createSetDatabase<T>({
 
   async function addItem(item: T): Promise<void> {
     await operationQueue.enqueue(async () => {
-      if (validateItem(item)) {
-        dataSet.add(item);
+      const itemWithId = { ...item, id: item.id ?? String(uuid()) };
+      if (validateItem(itemWithId)) {
+        dataSet.add(itemWithId);
         await saveBatch();
       } else {
-        console.error("Invalid item:", item);
+        console.error("Invalid item:", itemWithId);
       }
     });
   }
 
   async function addItems(items: T[]): Promise<void> {
     await operationQueue.enqueue(async () => {
-      const validItems = items.filter((item) => validateItem(item));
+      const itemsWithIds = items.map((item) => ({
+        ...item,
+        id: item.id ?? String(uuid()),
+      }));
+      const validItems = itemsWithIds.filter((item) => validateItem(item));
       if (validItems.length > 0) {
         validItems.forEach((item) => dataSet.add(item));
         await saveBatch();

@@ -1,6 +1,18 @@
 # Ketchup-DB
 Super simple JSON database for Deno in TypeScript, which uses a `Set` to store the items.
 
+### Auto-Generated IDs
+Items automatically receive a UUID if no ID is provided. You can focus on your data without worrying about ID management.
+
+```typescript
+// Create items without IDs - they'll be auto-generated
+await db.addItems([
+  { name: "Alice", email: "alice@example.com" },     // ID will be auto-generated
+  { name: "Bob", email: "bob@example.com" },         // ID will be auto-generated
+  { id: 3, name: "Charlie", email: "charlie@example.com" }  // Uses provided ID
+]);
+```
+
 ### Loading Multiple Items
 Reads multiple items from a JSON file at once and adds them to the `Set`. All items are validated before being added in a single operation.
 
@@ -11,9 +23,9 @@ Writes all items in the `Set` to the JSON file in one operation, making it more 
 
 ```typescript
 // Create an initializer object for User (no need to define User type separately)
-const userInitializer = { id: 0, name: "", email: "" };
+const userInitializer = { name: "", email: "" };  // Note: no id required!
 
-// Derive the User type from the initializer object
+// Derive the User type from the initializer
 type User = typeof userInitializer;  // Automatically infers the User type
 
 // Automatically extract the keys from the initializer
@@ -25,22 +37,24 @@ const validateUser: Validator<User> = (item: any): item is User =>
 
 // Usage example
 async function main() {
-  const db = new SetDatabase<User>("users.json", validateUser);
+  const db = createDb<User>({
+    _filePath: "users.json",
+    validateItem: validateUser
+  });
 
   // Load existing data from file in batch
   await db.loadBatch();
   console.log("Loaded Users:", db.getAllItems());
 
-  // Add new users in a batch
+  // Add new users - IDs are optional!
   await db.addItems([
-    { id: 1, name: "Alice", email: "alice@example.com" },
-    { id: 2, name: "Bob", email: "bob@example.com" },
-    { id: 3, name: "Charlie", email: "charlie@example.com" }
+    { name: "Alice", email: "alice@example.com" },
+    { name: "Bob", email: "bob@example.com" }
   ]);
 
   console.log("After Adding Users:", db.getAllItems());
+  // Output will show auto-generated UUIDs for Alice and Bob
 
-  // Optionally save in batch (after additions)
   await db.saveBatch();
 }
 

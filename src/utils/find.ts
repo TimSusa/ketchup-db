@@ -89,7 +89,7 @@ export function findInData(
     stopOnFirstMatch: boolean,
     matchPartial: boolean
   ): SearchResult[] {
-    const newResults = [...results];
+    let newResults = [...results];
 
     for (const key in obj) {
       const currentPath = [...path, key];
@@ -102,7 +102,7 @@ export function findInData(
         }
       }
 
-      const nestedResults = findInObject(
+      newResults = findInObject(
         currentValue,
         search,
         findBy,
@@ -111,10 +111,6 @@ export function findInData(
         currentPath,
         newResults
       );
-      if (stopOnFirstMatch && nestedResults.length > results.length) {
-        return nestedResults;
-      }
-      return nestedResults;
     }
     return newResults;
   }

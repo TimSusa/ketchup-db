@@ -1,5 +1,5 @@
 import { assertEquals } from "../test_deps.ts";
-import { createSetDatabase } from "../../src/database/database.ts";
+import { createDb } from "../../src/database/database.ts";
 import { createValidator } from "../../src/types/validator.ts";
 
 type TestItem = {
@@ -11,7 +11,7 @@ const testValidator = createValidator<TestItem>(["id", "name"]);
 
 Deno.test("SetDatabase", async (t) => {
   const tempFilePath = await Deno.makeTempFile();
-  const db = createSetDatabase<TestItem>({
+  const db = createDb<TestItem>({
     _filePath: tempFilePath,
     validateItem: testValidator,
   });
