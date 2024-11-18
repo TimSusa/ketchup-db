@@ -1,5 +1,5 @@
 # Ketchup-DB
-Super simple JSON database for Deno in TypeScript.
+Super simple JSON database for Deno in TypeScript, which uses a `Set` to store the items.
 
 ### Batch Loading
 Batch loading will read multiple items from a JSON file at once and add them to the `Set`. It will ensure that all items loaded are validated and then added to the set in one operation.

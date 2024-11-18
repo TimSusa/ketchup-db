@@ -1,3 +1,5 @@
+import type { Event } from "./event.ts";
+
 type Address = {
   street: string;
   city: string;
@@ -8,7 +10,14 @@ export type User = {
   id: number;
   name: string;
   address: Address;
+  events: Event[];
   friends: User[];
 };
 
-export const userKeys: (keyof User)[] = ["id", "name", "address", "friends"];
+export const userKeys: (keyof User)[] = [
+  "id",
+  "name",
+  "address",
+  "events",
+  "friends",
+];
