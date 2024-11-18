@@ -1,13 +1,13 @@
 # Ketchup-DB
 Super simple JSON database for Deno in TypeScript, which uses a `Set` to store the items.
 
-### Batch Loading
-Batch loading will read multiple items from a JSON file at once and add them to the `Set`. It will ensure that all items loaded are validated and then added to the set in one operation.
+### Loading Multiple Items
+Reads multiple items from a JSON file at once and adds them to the `Set`. All items are validated before being added in a single operation.
 
-### Batch Saving
-Batch saving will allow us to write all the items in the `Set` to the JSON file in one go, making it more efficient compared to saving individual items.
+### Bulk Saving
+Writes all items in the `Set` to the JSON file in one operation, making it more efficient than individual saves.
 
-### Updated Implementation with Batch Operations
+### Implementation with Bulk Operations
 
 ```typescript
 import { exists } from "https://deno.land/std@0.206.0/fs/exists.ts";
@@ -116,32 +116,51 @@ async function main() {
 await main();
 ```
 
-### Key Changes
+### Key Features
 
-1. **Batch Loading (`loadBatch`)**:
-   - The `loadBatch()` function loads all items from the JSON file and validates them in bulk.
-   - After validating, each valid item is added to the `Set` in one go.
+1. **Efficient Loading**:
+   - Loads all items from the JSON file and validates them at once
+   - Valid items are added to the `Set` in a single operation
 
-2. **Batch Saving (`saveBatch`)**:
-   - The `saveBatch()` function saves the entire `Set` to the JSON file all at once.
-   - We convert the `Set` into an array (`Array.from(this.dataSet)`) and serialize it into JSON.
+2. **Optimized Saving**:
+   - Saves the entire `Set` to the JSON file in one operation
+   - Converts the `Set` to an array and serializes to JSON
 
-3. **Batch Adding Items (`addItems`)**:
-   - The `addItems()` function takes an array of items and validates them all before adding them to the `Set`.
-   - After adding the valid items, it saves the updated `Set` to the file in one batch operation.
+3. **Bulk Item Addition**:
+   - Handles multiple items simultaneously
+   - Validates all items before adding to the `Set`
+   - Single file write after processing
 
-### Benefits of Batch Operations
-- **Performance**: Loading and saving multiple items at once is much more efficient than doing it individually.
-- **Reduced File Access**: Instead of writing to the file every time a new item is added, we can batch all changes and write them at once.
-- **Ease of Use**: The API now supports batch adding, which is convenient when dealing with large datasets.
+### Benefits
+- **Performance**: Processing multiple items at once is more efficient
+- **Reduced File Access**: Minimizes disk operations by combining writes
+- **Ease of Use**: Simple API for handling large datasets
 
 ### Running the Code
-To run the code in Deno, you can use:
-
 ```bash
 deno run --allow-read --allow-write your_script.ts
 ```
 
-With these batch operations in place, your `SetDatabase` class becomes much more efficient for handling large numbers of items!
+These optimizations make your `SetDatabase` class efficient for handling large datasets!
 
-Sent from my iPad
+# Deep Search Functionality
+
+The database includes powerful deep search capabilities that can traverse through nested objects, arrays, and recursive structures.
+
+### Search Capabilities
+
+- **Nested Objects**: Searches through all object properties at any depth
+- **Arrays**: Traverses through array elements
+- **Recursive Structures**: Handles circular references (like nested user relationships)
+- **Partial Matching**: Optional partial string matching
+- **Type Safe**: Full TypeScript support
+
+### Example
+
+```typescript
+import type { User } from "@ketchup-db/types/user.ts";
+import { findInData } from "@ketchup-db/utils/find.ts";
+
+const userData: User = {
+  // ... rest of the example remains unchanged ...
+}
